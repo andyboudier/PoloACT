@@ -179,6 +179,15 @@ svg {
   border-color: var(--brass-soft);
   color: var(--brass-soft);
 }
+/* Header sits on the dark field background — light the ghost button so it reads. */
+.nav-cta .btn-ghost {
+  color: var(--on-field);
+  border-color: var(--line-field);
+}
+.nav-cta .btn-ghost:hover {
+  color: var(--brass-soft);
+  border-color: var(--brass-soft);
+}
 
 header.nav {
   position: sticky;
