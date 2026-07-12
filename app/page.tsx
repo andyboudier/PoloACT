@@ -254,8 +254,8 @@ export default function Home() {
           <div className="case-grid">
             <div className="rv">
               <p className="lead">
-                PoloACT began life as <strong style={{ color: "var(--on-field)" }}>TPPC Chukkas</strong> — the
-                digital home of Tedworth Park Polo Club at Perham Down. Every feature was forged in a working
+                PoloACT began life as <strong style={{ color: "var(--on-field)" }}>TPPC PoloACT</strong> — the
+                digital home of Tedworth Park Polo Club. Every feature was forged in a working
                 club&rsquo;s Wednesday-evening reality, then made ready for any club to adopt.
               </p>
               <div className="case-facts">
