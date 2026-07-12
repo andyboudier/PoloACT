@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState("");
+  const [sending, setSending] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const year = 2026;
 
@@ -35,17 +36,35 @@ export default function Home() {
     toastTimer.current = setTimeout(() => setToast(""), 3600);
   }
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const club = (form.elements.namedItem("club") as HTMLInputElement).value.trim();
     const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
+    const company = (form.elements.namedItem("company") as HTMLInputElement).value;
     if (!club || !email || !email.includes("@")) {
       showToast("Add your club and a valid email to continue.");
       return;
     }
-    form.reset();
-    showToast("Thanks — this is a preview, so nothing was sent. We’d be in touch here.");
+    setSending(true);
+    try {
+      const res = await fetch("/api/demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ club, email, company }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        form.reset();
+        showToast("Thanks — your request is on its way. We’ll be in touch shortly.");
+      } else {
+        showToast(data.error || "Something went wrong. Please try again.");
+      }
+    } catch {
+      showToast("Network error — please try again in a moment.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -343,7 +362,17 @@ export default function Home() {
           <form onSubmit={onSubmit} noValidate>
             <input type="text" name="club" placeholder="Your club" aria-label="Your club" required />
             <input type="email" name="email" placeholder="Email address" aria-label="Email address" required />
-            <button type="submit" className="btn btn-brass">Request a demo</button>
+            <input
+              type="text"
+              name="company"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+            />
+            <button type="submit" className="btn btn-brass" disabled={sending}>
+              {sending ? "Sending…" : "Request a demo"}
+            </button>
           </form>
           <p className="fine">Already a Tedworth member? <strong>Open the app</strong> at tedworthparkpolo.com/booking</p>
         </div>
