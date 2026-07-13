@@ -400,8 +400,15 @@ export default function Home() {
         </div>
         <div className="foot-bottom">
           <div className="wrap">
-            <small>© {year} PoloACT · Built with Tedworth Park Polo Club.</small>
-            <span className="preview-tag">Preview · partner offers being finalised</span>
+            <small>
+              © {year} Copyright{" "}
+              <a href="https://actsystems.co.uk" target="_blank" rel="noopener noreferrer">ACT Systems Limited</a>.
+              PoloACT is a product of ACT Systems, built with Tedworth Park Polo Club.
+            </small>
+            <span className="foot-meta">
+              <a href="/privacy">Privacy &amp; Cookies</a>
+              <span className="preview-tag">Preview · partner offers being finalised</span>
+            </span>
           </div>
         </div>
       </footer>
