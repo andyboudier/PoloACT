@@ -513,11 +513,18 @@ header.nav {
   color: var(--brass-soft);
   font-variant-numeric: tabular-nums;
 }
-.stat span {
+.stat > span {
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--on-field-muted);
+}
+/* number-ticker digits sit inside <b>; keep them at the big brass number size */
+.stat b .count {
+  font-size: inherit;
+  color: inherit;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 section {
