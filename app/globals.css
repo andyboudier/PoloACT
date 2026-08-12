@@ -1143,16 +1143,19 @@ footer a:hover {
 .rv {
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  filter: blur(9px);
+  transition: opacity 0.7s ease, transform 0.7s ease, filter 0.7s ease;
 }
 .rv.in {
   opacity: 1;
   transform: none;
+  filter: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .rv {
     opacity: 1;
     transform: none;
+    filter: none;
   }
 }
 .toast {
@@ -1344,3 +1347,87 @@ footer a:hover {
 .legal-foot small { color: var(--muted); font-size: 13px; }
 .legal-foot a { color: var(--brass-ink); font-size: 13px; font-weight: 600; }
 .legal-foot a:hover { color: var(--brass); }
+
+/* ============================================================
+   Magic UI concept effects (ported to plain CSS)
+   ============================================================ */
+@property --beam-a { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+
+/* animated-shiny-text — hero eyebrow */
+.eyebrow.shiny{
+  display:inline-block;
+  background:linear-gradient(110deg, var(--brass-soft) 32%, #fff7e8 50%, var(--brass-soft) 68%);
+  background-size:220% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:mui-shine 6s linear infinite;
+}
+.on-field .eyebrow.shiny{ background:linear-gradient(110deg, var(--brass-soft) 32%, #fff7e8 50%, var(--brass-soft) 68%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+@keyframes mui-shine{ to{ background-position:-220% 0 } }
+
+/* shimmer-button — every brass CTA */
+.btn-brass{ position:relative; overflow:hidden; isolation:isolate; }
+.btn-brass::before{ content:""; position:absolute; inset:-160%; z-index:-2;
+  background:conic-gradient(from 0deg, transparent 0 76%, rgba(255,247,232,.9) 90%, transparent 100%);
+  animation:mui-spin 3.6s linear infinite; }
+.btn-brass::after{ content:""; position:absolute; inset:1.6px; border-radius:inherit; background:var(--brass); z-index:-1; }
+@keyframes mui-spin{ to{ transform:rotate(360deg) } }
+
+/* border-beam — hero live-match card */
+.beam{ position:relative; border-radius:var(--r-lg); }
+.beam::before{ content:""; position:absolute; inset:0; border-radius:inherit; padding:1.6px; pointer-events:none; z-index:3;
+  background:conic-gradient(from var(--beam-a), transparent 0 66%, var(--brass-soft) 82%, #fff6e6 88%, transparent 96%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite:exclude;
+  animation:mui-beam 5.5s linear infinite; }
+@keyframes mui-beam{ to{ --beam-a:360deg } }
+
+/* magic-card — spotlight follows cursor on feature cells */
+.feat{ position:relative; overflow:hidden; }
+.feat::before{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; transition:opacity .3s ease;
+  background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--brass) 20%, transparent), transparent 60%); }
+.feat:hover::before{ opacity:1; }
+
+/* bento rhythm for the feature grid */
+@media (min-width:901px){
+  .grid-feat .feat-wide{ grid-column:span 2; }
+  .grid-feat .feat-full{ grid-column:1 / -1; }
+}
+@media (max-width:900px) and (min-width:561px){
+  .grid-feat .feat-full{ grid-column:1 / -1; }
+}
+
+/* shine-border — demo form card */
+.shine{ position:relative; border-radius:var(--r-lg); width:100%; max-width:600px; }
+.shine::before{ content:""; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--brass-soft), transparent); background-size:200% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite:exclude;
+  animation:mui-slide 4.5s linear infinite; }
+@keyframes mui-slide{ to{ background-position:200% 0 } }
+.shine-in{ padding:22px; border-radius:inherit; background:rgba(251,249,244,0.05); }
+.shine-in form{ max-width:none; }
+
+/* animated-beam — shop network */
+.beamfig-wrap{ margin-top:48px; }
+.beamfig{ width:100%; height:auto; display:block; }
+.pa-node{ fill:var(--surface); stroke:var(--line); }
+.pa-hub{ fill:url(#pa-hub); }
+.pa-ring{ fill:none; stroke:var(--brass-soft); stroke-width:1.2; opacity:.55; }
+.pa-nlabel{ fill:var(--ink); font-family:var(--sans); font-weight:600; font-size:14px; }
+.pa-nsub{ fill:var(--muted); font-family:var(--sans); font-size:11px; letter-spacing:.06em; text-transform:uppercase; }
+.pa-flow{ stroke:color-mix(in srgb, var(--brass) 40%, var(--line)); stroke-width:2; fill:none; }
+.pa-flow-live{ stroke:url(#pa-grad); stroke-width:2.6; fill:none; stroke-linecap:round;
+  stroke-dasharray:26 320; animation:pa-dash 2.8s linear infinite; }
+@keyframes pa-dash{ to{ stroke-dashoffset:-346 } }
+
+@media (prefers-reduced-motion:reduce){
+  .eyebrow.shiny{ animation:none; background:none; -webkit-text-fill-color:var(--brass-soft); color:var(--brass-soft); }
+  .btn-brass::before, .beam::before, .shine::before, .pa-flow-live{ animation:none; }
+  .btn-brass::before{ display:none; }
+}
+
+/* logo cards inside the shop-network beam figure */
+.beamfig text{ font-family:var(--sans); }
+.beamfig .pa-serif{ font-family:var(--serif); font-weight:700; }
+.pa-card{ fill:#ffffff; stroke:var(--line); }
+.pa-card-club{ fill:color-mix(in srgb, var(--brass) 13%, #ffffff); stroke:color-mix(in srgb, var(--brass) 45%, var(--line)); }

@@ -27,7 +27,54 @@ export default function Home() {
       { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
     els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    // number-ticker: count up when scrolled into view
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const counts = Array.from(document.querySelectorAll<HTMLElement>(".count"));
+    const runCount = (el: HTMLElement) => {
+      const to = parseFloat(el.dataset.to || "0");
+      if (reduce) {
+        el.textContent = String(to);
+        return;
+      }
+      let start: number | null = null;
+      const dur = 1400;
+      const step = (ts: number) => {
+        if (start === null) start = ts;
+        const p = Math.min((ts - start) / dur, 1);
+        el.textContent = String(Math.round((1 - Math.pow(1 - p, 3)) * to));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const cio = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            runCount(e.target as HTMLElement);
+            cio.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.6 }
+    );
+    counts.forEach((c) => cio.observe(c));
+
+    // magic-card: spotlight follows the cursor
+    const feats = Array.from(document.querySelectorAll<HTMLElement>(".feat"));
+    const onMove = (e: PointerEvent) => {
+      const el = e.currentTarget as HTMLElement;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    };
+    feats.forEach((f) => f.addEventListener("pointermove", onMove));
+
+    return () => {
+      io.disconnect();
+      cio.disconnect();
+      feats.forEach((f) => f.removeEventListener("pointermove", onMove));
+    };
   }, []);
 
   function showToast(msg: string) {
@@ -117,7 +164,7 @@ export default function Home() {
       <div className="hero on-field" id="top">
         <div className="wrap hero-in">
           <div>
-            <span className="eyebrow">Polo club management software</span>
+            <span className="eyebrow shiny">Polo club management software</span>
             <h1>Run your whole club from one app.</h1>
             <p className="lead">
               PoloACT is the operating system for polo clubs — chukka bookings, automatic balanced team
@@ -134,10 +181,11 @@ export default function Home() {
               <a href="#platform" className="btn btn-ghost">Explore the platform</a>
             </div>
             <div className="hero-note">
-              <span className="dot" /> In daily use on the App Store and any browser — no kit to install.
+              <span className="dot" /> In daily use on the App Store, Google Play and any browser — no kit to install.
             </div>
           </div>
-          <div className="card-match rv">
+          <div className="beam rv">
+            <div className="card-match">
             <div className="cm-top">
               <span>Wednesday · Perham Down</span>
               <span className="cm-live"><span className="pulse" /> Live · 3rd Chukka</span>
@@ -159,6 +207,7 @@ export default function Home() {
               <span>Chukkas</span>
               <i className="chk done" /><i className="chk done" /><i className="chk now" /><i className="chk" /><i className="chk" /><i className="chk" />
             </div>
+            </div>
           </div>
         </div>
       </div>
@@ -167,8 +216,8 @@ export default function Home() {
         <div className="wrap">
           <div className="t">In daily use at Tedworth Park Polo Club — &ldquo;Home of Services Polo&rdquo;.</div>
           <div className="stats">
-            <div className="stat"><b>&minus;2 &rarr; +10</b><span>Every handicap</span></div>
-            <div className="stat"><b>5</b><span>Sessions a week, drawn</span></div>
+            <div className="stat"><b>&minus;2 &rarr; +<span className="count" data-to="10">0</span></b><span>Every handicap</span></div>
+            <div className="stat"><b><span className="count" data-to="5">0</span></b><span>Sessions a week, drawn</span></div>
             <div className="stat"><b>1</b><span>App: office &amp; field</span></div>
           </div>
         </div>
@@ -192,7 +241,7 @@ export default function Home() {
               <h3>Chukka booking</h3>
               <p>Members sign up per day with handicap, chukkas, availability and pony-hire. Sign-ups close automatically before each session.</p>
             </div>
-            <div className="feat rv">
+            <div className="feat feat-wide rv">
               <div className="ic">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7" /></svg>
               </div>
@@ -241,7 +290,7 @@ export default function Home() {
           <div className="chukkas">
             <div className="chukka rv"><div className="num">1st Chukka</div><h3>We set you up</h3><p>Members, teams, ponies, grounds and your crest and colours loaded and checked.</p></div>
             <div className="chukka rv"><div className="num">2nd Chukka</div><h3>The week goes live</h3><p>Your session days and rules configured; bookings and auto-draws start running.</p></div>
-            <div className="chukka rv"><div className="num">3rd Chukka</div><h3>Members get the app</h3><p>On the App Store and any browser — fixtures, results and shop discounts included.</p></div>
+            <div className="chukka rv"><div className="num">3rd Chukka</div><h3>Members get the app</h3><p>On the App Store, Google Play and any browser — fixtures, results and shop discounts included.</p></div>
             <div className="chukka rv"><div className="num">4th Chukka</div><h3>You get the season back</h3><p>Hours of committee admin returned to where they belong — the field.</p></div>
           </div>
         </div>
@@ -262,7 +311,7 @@ export default function Home() {
                 <span className="fact"><b>Home of Services Polo</b></span>
                 <span className="fact">Grounds: <b>Fisher · Tattoo · Perham Down</b></span>
                 <span className="fact">Committee of <b>five</b></span>
-                <span className="fact">iOS <b>+</b> any browser</span>
+                <span className="fact">iOS, Android <b>+</b> any browser</span>
               </div>
               <p className="whitelabel">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass-soft)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16.5 7.1 19l.9-5.5-4-3.9L9.5 8z" /></svg>
@@ -273,9 +322,18 @@ export default function Home() {
                   <svg width="20" height="24" viewBox="0 0 24 28" fill="#fff" aria-hidden="true"><path d="M17.6 14.8c0-2.6 2.1-3.9 2.2-3.9-1.2-1.8-3.1-2-3.8-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9c-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.3 2.5 1.3-.05 1.8-.85 3.4-.85s2 .85 3.4.82c1.4-.02 2.3-1.25 3.2-2.46.6-.9.9-1.5 1.4-2.5-3.6-1.4-3.6-4.9-2.6-6.03zM15 5.4c.7-.9 1.2-2.1 1.1-3.4-1 .05-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.1.1 2.3-.6 3-1.4z" /></svg>
                   <span><small>Download on the</small><b>App Store</b></span>
                 </a>
+                <a className="badge-app" href="https://play.google.com/store/apps/details?id=uk.co.tedworthparkpolo.chukkas" target="_blank" rel="noopener noreferrer">
+                  <svg width="19" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#00D2FF" d="M3.9 2.3a1 1 0 0 0-.5.9v17.6a1 1 0 0 0 .5.9l9.4-9.7z" />
+                    <path fill="#00E676" d="M3.9 2.3 13.3 12l3.1-3.2L6.6.9C5.7.4 4.6.5 3.9 2.3z" />
+                    <path fill="#FF5252" d="M3.9 21.7 13.3 12l3.1 3.2-9.8 5.6c-.9.5-2 .4-2.7-1.1z" />
+                    <path fill="#FFD740" d="M16.4 8.8 13.3 12l3.1 3.2 4-2.3c.9-.5.9-1.7 0-2.2z" />
+                  </svg>
+                  <span><small>Get it on</small><b>Google Play</b></span>
+                </a>
                 <a className="btn btn-ghost" href="https://tedworthparkpolo.com/booking" target="_blank" rel="noopener noreferrer">Open in your browser &rarr;</a>
               </div>
-              <p className="case-fine">App Store ID 6773771166 · tedworthparkpolo.com/booking</p>
+              <p className="case-fine">iPhone &amp; Android &middot; or any browser at tedworthparkpolo.com/booking</p>
             </div>
 
             <div className="club rv" aria-label="Tedworth Park Polo Club — the week">
@@ -313,6 +371,37 @@ export default function Home() {
               Every PoloACT member gets a code that unlocks discounts across our partner shops — mallets to
               boots, saddlery to apparel. Members save; the club earns on every basket.
             </p>
+          </div>
+          <div className="beamfig-wrap rv">
+            <svg className="beamfig" viewBox="0 0 920 300" role="img" aria-label="The PoloACT member app connects members to partner shops SATS Polo and Black Hound Sports, and the club earns on every basket">
+              <defs>
+                <linearGradient id="pa-hub" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#c6a468" /><stop offset="1" stopColor="#a97f45" />
+                </linearGradient>
+                <linearGradient id="pa-grad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#c6a468" stopOpacity="0" /><stop offset="0.5" stopColor="#ecd39a" /><stop offset="1" stopColor="#c6a468" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path className="pa-flow" d="M215,150 C380,150 400,54 560,54" />
+              <path className="pa-flow" d="M215,150 C380,150 400,150 560,150" />
+              <path className="pa-flow" d="M215,150 C380,150 400,246 560,246" />
+              <path className="pa-flow-live" d="M215,150 C380,150 400,54 560,54" />
+              <path className="pa-flow-live" d="M215,150 C380,150 400,150 560,150" style={{ animationDelay: "0.9s" }} />
+              <path className="pa-flow-live" d="M215,150 C380,150 400,246 560,246" style={{ animationDelay: "1.8s" }} />
+              <circle className="pa-ring" cx="160" cy="150" r="62" />
+              <circle className="pa-hub" cx="160" cy="150" r="50" />
+              <text className="pa-serif" x="160" y="147" textAnchor="middle" fontSize="19" fill="#20170b">PoloACT</text>
+              <text x="160" y="167" textAnchor="middle" fontSize="9.5" letterSpacing="1.5" fill="#3a2b12">MEMBER APP</text>
+              <rect className="pa-card" x="560" y="18" width="330" height="72" rx="14" />
+              <image href="/logos/satsfaction.jpg" x="590" y="34" height="40" width="170" preserveAspectRatio="xMidYMid meet" />
+              <rect className="pa-card" x="560" y="114" width="330" height="72" rx="14" />
+              <image href="/logos/black-hound.png" x="588" y="130" height="40" width="86" preserveAspectRatio="xMidYMid meet" />
+              <text className="pa-serif" x="690" y="147" fontSize="17" fill="#1a241c">Black Hound</text>
+              <text x="690" y="166" fontSize="11" letterSpacing="0.4" fill="#6b6456">Sports &middot; sportswear</text>
+              <rect className="pa-card-club" x="560" y="210" width="330" height="72" rx="14" />
+              <text className="pa-serif" x="590" y="243" fontSize="17" fill="#1a241c">Your club</text>
+              <text x="590" y="263" fontSize="11" letterSpacing="0.4" fill="#87682f">Earns on every basket</text>
+            </svg>
           </div>
           <div className="shops">
             <a className="shop rv" href="https://www.satsfaction.com" target="_blank" rel="noopener noreferrer">
@@ -359,6 +448,7 @@ export default function Home() {
           <span className="eyebrow">Book a demo</span>
           <h2>Bring PoloACT to your club.</h2>
           <p className="lead lead-center">See the platform on your own fixtures in a 30-minute walkthrough. Simple per-club pricing — we&rsquo;ll tailor it to your season.</p>
+          <div className="shine"><div className="shine-in">
           <form onSubmit={onSubmit} noValidate>
             <input type="text" name="club" placeholder="Your club" aria-label="Your club" required />
             <input type="email" name="email" placeholder="Email address" aria-label="Email address" required />
@@ -374,6 +464,7 @@ export default function Home() {
               {sending ? "Sending…" : "Request a demo"}
             </button>
           </form>
+          </div></div>
           <p className="fine">Already a Tedworth member? <strong>Open the app</strong> at tedworthparkpolo.com/booking</p>
         </div>
       </section>
