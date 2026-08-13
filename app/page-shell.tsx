@@ -29,7 +29,10 @@ export default function PageShell({
               <rect x="29.4" y="12.2" width="6.4" height="4.2" rx="1.6" transform="rotate(41 32.6 14.3)" fill="#C6A468" />
               <rect x="12.2" y="12.2" width="6.4" height="4.2" rx="1.6" transform="rotate(-41 15.4 14.3)" fill="#C6A468" />
             </svg>
-            <b>PoloACT</b>
+            <span>
+              <b>PoloACT</b>
+              <span className="by">Polo Club Software</span>
+            </span>
           </a>
           <a href="/#demo" className="legal-back">Book a demo &rarr;</a>
         </div>
