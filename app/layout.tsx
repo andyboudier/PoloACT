@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   description:
     "Polo club management software: chukka bookings, automatic team draws, tournaments, live scoring and a members' shop. Built with Tedworth Park Polo Club.",
   alternates: { canonical: "/" },
+  verification: { google: "t0fQzw_-stvnFCdBcNTHLyICYapmEHVCKyq5mZrimOw" },
   openGraph: {
     title: "PoloACT — Polo club management software",
     description:
