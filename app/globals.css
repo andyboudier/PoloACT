@@ -1257,7 +1257,26 @@ footer a:hover {
   font-size: 14px;
   padding: 0.6em 1.2em;
 }
-@media (max-width: 560px) {
+.cookie-actions {
+  display: flex;
+  gap: 10px;
+  flex: none;
+  align-items: center;
+}
+.cookie-btn {
+  font-size: 14px;
+  padding: 0.6em 1.1em;
+}
+.cookie-notice .btn-ghost {
+  color: var(--on-field);
+  border-color: var(--line-field);
+  background: transparent;
+}
+.cookie-notice .btn-ghost:hover {
+  color: var(--brass-soft);
+  border-color: var(--brass-soft);
+}
+@media (max-width: 620px) {
   .cookie-notice {
     flex-direction: column;
     align-items: stretch;
@@ -1265,6 +1284,7 @@ footer a:hover {
     gap: 12px;
   }
   .cookie-ok { align-self: flex-end; }
+  .cookie-actions { justify-content: flex-end; }
 }
 
 /* --- Legal / policy pages --- */
@@ -1438,3 +1458,24 @@ footer a:hover {
 .beamfig .pa-serif{ font-family:var(--serif); font-weight:700; }
 .pa-card{ fill:#ffffff; stroke:var(--line); }
 .pa-card-club{ fill:color-mix(in srgb, var(--brass) 13%, #ffffff); stroke:color-mix(in srgb, var(--brass) 45%, var(--line)); }
+
+/* sub-page CTA band */
+.subcta {
+  background: var(--field-deep);
+  color: var(--on-field);
+  border-top: 1px solid var(--line-field);
+  text-align: center;
+}
+.subcta .wrap {
+  padding-top: 48px;
+  padding-bottom: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.subcta h2 { font-size: clamp(24px, 3.4vw, 34px); color: var(--on-field); }
+.subcta p { color: var(--on-field-muted); font-size: 16px; max-width: 46ch; }
+.subcta .btn { margin-top: 6px; }
+.legal ol { margin: 8px 0 0; padding-left: 22px; }
+.legal ol li { margin: 8px 0; }

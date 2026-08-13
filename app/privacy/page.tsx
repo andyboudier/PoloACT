@@ -62,8 +62,8 @@ export default function PrivacyPolicy() {
               browser type and pages requested.
             </li>
             <li>
-              <strong>Cookie data.</strong> Essential cookies needed for the site to function (see
-              section 9).
+              <strong>Cookie &amp; analytics data.</strong> Essential cookies needed for the site to
+              function, plus Google Analytics data if you consent to it (see section 9).
             </li>
           </ul>
 
@@ -86,8 +86,9 @@ export default function PrivacyPolicy() {
           <h2>5. Sharing your data</h2>
           <p>
             We do not sell your data. We share it only with service providers who help us run the site
-            and respond to you — including our website host (Vercel) and our email provider (Microsoft
-            365) — as well as professional advisers and regulatory authorities where legally required.
+            and respond to you — including our website host (Vercel), our email provider (Microsoft
+            365) and, where you have consented to analytics, Google Analytics — as well as professional
+            advisers and regulatory authorities where legally required.
           </p>
 
           <h2>6. Data retention</h2>
@@ -111,12 +112,24 @@ export default function PrivacyPolicy() {
             <a href="https://www.ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a>.
           </p>
 
-          <h2>9. Cookies</h2>
+          <h2>9. Cookies &amp; analytics</h2>
           <p>
-            This site uses only <strong>essential cookies</strong> required for it to function and stay
-            secure. We do not use advertising or third-party analytics cookies. Your browser can block or
-            delete cookies at any time, though the site may not work as intended without the essential
-            ones. A record of your acknowledgement of our cookie notice is stored locally in your browser.
+            <strong>Essential cookies</strong> are used to make the site work and keep it secure. These
+            are always on. Your cookie choice is stored locally in your browser so we don&rsquo;t ask
+            again.
+          </p>
+          <p>
+            <strong>Analytics cookies (optional).</strong> If you select &ldquo;Accept all&rdquo; on our
+            cookie banner, we load <strong>Google Analytics</strong> to understand how the site is used
+            (pages viewed, approximate location, device type) so we can improve it. IP addresses are
+            anonymised, and advertising and personalisation signals are disabled. If you select
+            &ldquo;Essential only&rdquo;, Google Analytics is never loaded and no analytics cookies are
+            set. We do not use advertising cookies at all.
+          </p>
+          <p>
+            To change your choice, clear this site&rsquo;s data in your browser and the banner will
+            appear again. Your browser can also block or delete cookies at any time, though the site may
+            not work as intended without the essential ones.
           </p>
 
           <h2>10. International transfers</h2>

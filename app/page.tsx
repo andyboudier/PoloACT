@@ -136,7 +136,7 @@ export default function Home() {
             </span>
           </a>
           <nav className={`navlinks${menuOpen ? " open" : ""}`} id="nav">
-            <a href="#platform" onClick={() => setMenuOpen(false)}>Platform</a>
+            <a href="/features" onClick={() => setMenuOpen(false)}>Features</a>
             <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
             <a href="#case" onClick={() => setMenuOpen(false)}>Case study</a>
             <a href="#shops" onClick={() => setMenuOpen(false)}>Shop network</a>
@@ -477,8 +477,9 @@ export default function Home() {
           </div>
           <div>
             <h4>Platform</h4>
-            <a href="#platform">Features</a>
-            <a href="#how">Onboarding</a>
+            <a href="/features">Features</a>
+            <a href="/polo-club-software">Choosing polo software</a>
+            <a href="/how-polo-team-draws-work">How team draws work</a>
             <a href="#case">Case study</a>
             <a href="#members">For members</a>
           </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Outfit } from "next/font/google";
 import "./globals.css";
 import CookieNotice from "./cookie-notice";
+import Analytics from "./analytics";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -75,6 +76,7 @@ export default function RootLayout({
         />
         {children}
         <CookieNotice />
+        <Analytics />
       </body>
     </html>
   );

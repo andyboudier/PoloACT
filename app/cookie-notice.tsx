@@ -1,41 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "poloact-cookie-consent";
+import { CONSENT_KEY, CONSENT_EVENT } from "./analytics";
 
 export default function CookieNotice() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) setShow(true);
+      if (!localStorage.getItem(CONSENT_KEY)) setShow(true);
     } catch {
       // localStorage unavailable (private mode) — show once, don't persist
       setShow(true);
     }
   }, []);
 
-  function accept() {
+  function choose(value: "accepted" | "rejected") {
     try {
-      localStorage.setItem(STORAGE_KEY, `accepted:${new Date().toISOString()}`);
+      localStorage.setItem(CONSENT_KEY, value);
     } catch {
       /* ignore */
     }
+    window.dispatchEvent(new Event(CONSENT_EVENT));
     setShow(false);
   }
 
   if (!show) return null;
 
   return (
-    <div className="cookie-notice" role="dialog" aria-label="Cookie notice" aria-live="polite">
+    <div className="cookie-notice" role="dialog" aria-label="Cookie choices" aria-live="polite">
       <p className="cookie-copy">
-        PoloACT uses only essential cookies needed to make the site work — no advertising or
-        third-party tracking. See our <a href="/privacy">Privacy &amp; Cookie Policy</a>.
+        We use essential cookies to make the site work. With your permission we&rsquo;d also use
+        Google Analytics to understand how the site is used &mdash; never for advertising. See our{" "}
+        <a href="/privacy">Privacy &amp; Cookie Policy</a>.
       </p>
-      <button type="button" className="btn btn-brass cookie-ok" onClick={accept}>
-        Got it
-      </button>
+      <div className="cookie-actions">
+        <button type="button" className="btn btn-ghost cookie-btn" onClick={() => choose("rejected")}>
+          Essential only
+        </button>
+        <button type="button" className="btn btn-brass cookie-btn" onClick={() => choose("accepted")}>
+          Accept all
+        </button>
+      </div>
     </div>
   );
 }
