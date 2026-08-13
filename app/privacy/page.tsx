@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Privacy & Cookie Policy — PoloACT",
   description:
     "How ACT Systems Limited handles personal data collected through the PoloACT website.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPolicy() {
