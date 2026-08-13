@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "./analytics";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -103,6 +104,8 @@ export default function Home() {
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         form.reset();
+        // GA4 recommended lead event — no-ops unless the visitor consented to analytics.
+        trackEvent("generate_lead", { form_location: "demo", club_provided: true });
         showToast("Thanks — your request is on its way. We’ll be in touch shortly.");
       } else {
         showToast(data.error || "Something went wrong. Please try again.");

@@ -16,6 +16,19 @@ export function hasAnalyticsConsent() {
   }
 }
 
+type Gtag = (command: string, eventName: string, params?: Record<string, unknown>) => void;
+
+/**
+ * Sends a GA4 event. No-ops when the visitor hasn't consented (gtag never loaded),
+ * so tracking calls are safe to make unconditionally.
+ */
+export function trackEvent(name: string, params: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  const gtag = (window as unknown as { gtag?: Gtag }).gtag;
+  if (typeof gtag !== "function") return;
+  gtag("event", name, params);
+}
+
 /**
  * Loads Google Analytics only after the visitor has explicitly accepted.
  * Consent Mode is set to denied by default, so nothing is sent before then.
