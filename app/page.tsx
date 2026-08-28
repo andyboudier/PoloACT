@@ -482,6 +482,7 @@ export default function Home() {
             <h4>Platform</h4>
             <a href="/features">Features</a>
             <a href="/polo-club-software">Choosing polo software</a>
+            <a href="/polo-tournament-software">Tournament software</a>
             <a href="/how-polo-team-draws-work">How team draws work</a>
             <a href="#case">Case study</a>
             <a href="#members">For members</a>
