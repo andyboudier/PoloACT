@@ -31,8 +31,8 @@ export default function CookieNotice() {
     <div className="cookie-notice" role="dialog" aria-label="Cookie choices" aria-live="polite">
       <p className="cookie-copy">
         We use essential cookies to make the site work. With your permission we&rsquo;d also use
-        Google Analytics to understand how the site is used &mdash; never for advertising. See our{" "}
-        <a href="/privacy">Privacy &amp; Cookie Policy</a>.
+        Google Analytics and Microsoft Clarity to understand how the site is used &mdash; never for
+        advertising. See our <a href="/privacy">Privacy &amp; Cookie Policy</a>.
       </p>
       <div className="cookie-actions">
         <button type="button" className="btn btn-ghost cookie-btn" onClick={() => choose("rejected")}>

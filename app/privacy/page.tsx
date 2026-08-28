@@ -87,8 +87,8 @@ export default function PrivacyPolicy() {
           <p>
             We do not sell your data. We share it only with service providers who help us run the site
             and respond to you — including our website host (Vercel), our email provider (Microsoft
-            365) and, where you have consented to analytics, Google Analytics — as well as professional
-            advisers and regulatory authorities where legally required.
+            365) and, where you have consented to analytics, Google Analytics and Microsoft Clarity — as
+            well as professional advisers and regulatory authorities where legally required.
           </p>
 
           <h2>6. Data retention</h2>
@@ -120,11 +120,12 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             <strong>Analytics cookies (optional).</strong> If you select &ldquo;Accept all&rdquo; on our
-            cookie banner, we load <strong>Google Analytics</strong> to understand how the site is used
-            (pages viewed, approximate location, device type) so we can improve it. IP addresses are
-            anonymised, and advertising and personalisation signals are disabled. If you select
-            &ldquo;Essential only&rdquo;, Google Analytics is never loaded and no analytics cookies are
-            set. We do not use advertising cookies at all.
+            cookie banner, we load <strong>Google Analytics</strong> and <strong>Microsoft Clarity</strong>{" "}
+            to understand how the site is used (pages viewed, approximate location, device type, and
+            aggregated interaction and heatmap data) so we can improve it. Google Analytics IP addresses
+            are anonymised, and advertising and personalisation signals are disabled. If you select
+            &ldquo;Essential only&rdquo;, neither tool is loaded and no analytics cookies are set. We do
+            not use advertising cookies at all.
           </p>
           <p>
             To change your choice, clear this site&rsquo;s data in your browser and the banner will
