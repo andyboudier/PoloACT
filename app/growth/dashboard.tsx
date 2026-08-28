@@ -80,6 +80,20 @@ function Connect({ title, steps }: { title: string; steps: string[] }) {
   );
 }
 
+/** "Open in <tool>" link for a card header — jumps to the full tool in a new tab. */
+function OpenIn({ href, label }: { href: string; label: string }) {
+  return (
+    <a className="gx-open" href={href} target="_blank" rel="noopener noreferrer">
+      Open in {label} <span aria-hidden="true">&#8599;</span>
+    </a>
+  );
+}
+
+const SEARCH_CONSOLE_URL =
+  "https://search.google.com/search-console/performance/search-analytics?resource_id=https%3A%2F%2Fpoloact.co.uk%2F";
+const CLARITY_URL = "https://clarity.microsoft.com/projects/view/y9i7z4uls1/dashboard";
+const GA4_URL = "https://analytics.google.com/analytics/web/#/p549797214/reports/intelligenthome";
+
 export default function Dashboard() {
   const [ga4, setGa4] = useState<GA4 | null>(null);
   const [search, setSearch] = useState<Search | null>(null);
@@ -146,7 +160,7 @@ export default function Dashboard() {
       <div className="gx-grid">
         {/* Search Console */}
         <section className="gx-card gx-card-wide">
-          <h2>Search — what people type to find you</h2>
+          <h2>Search — what people type to find you<OpenIn href={SEARCH_CONSOLE_URL} label="Search Console" /></h2>
           {search && !search.configured && (
             <Connect title="Google Search Console" steps={[
               "Create a Google Cloud service account and JSON key (Analytics Data + Search Console APIs enabled).",
@@ -178,7 +192,7 @@ export default function Dashboard() {
 
         {/* GA4 channels */}
         <section className="gx-card">
-          <h2>Where visitors come from</h2>
+          <h2>Where visitors come from<OpenIn href={GA4_URL} label="GA4" /></h2>
           {ga4 && !ga4.configured && (
             <Connect title="Google Analytics" steps={[
               "Reuse the same Google service account.",
@@ -206,7 +220,7 @@ export default function Dashboard() {
 
         {/* Clarity */}
         <section className="gx-card gx-card-wide">
-          <h2>Behaviour — Microsoft Clarity <span className="gx-badge">last 3 days</span></h2>
+          <h2>Behaviour — Microsoft Clarity <span className="gx-badge">last 3 days</span><OpenIn href={CLARITY_URL} label="Clarity" /></h2>
           {clarity && !clarity.configured && (
             <Connect title="Microsoft Clarity" steps={[
               "In Clarity → Settings → Data export, generate an API token.",
@@ -231,9 +245,9 @@ export default function Dashboard() {
       <footer className="gx-foot">
         <span>Live from GA4, Search Console &amp; Microsoft Clarity · read-only · consent-gated collection.</span>
         <span className="gx-links">
-          <a href="https://analytics.google.com/analytics/web/#/p549797214/realtime/overview" target="_blank" rel="noopener noreferrer">GA4</a>
-          <a href="https://search.google.com/search-console?resource_id=https://poloact.co.uk/" target="_blank" rel="noopener noreferrer">Search Console</a>
-          <a href="https://clarity.microsoft.com/projects/view/y9i7z4uls1/dashboard" target="_blank" rel="noopener noreferrer">Clarity</a>
+          <a href={GA4_URL} target="_blank" rel="noopener noreferrer">GA4</a>
+          <a href={SEARCH_CONSOLE_URL} target="_blank" rel="noopener noreferrer">Search Console</a>
+          <a href={CLARITY_URL} target="_blank" rel="noopener noreferrer">Clarity</a>
         </span>
       </footer>
     </div>
