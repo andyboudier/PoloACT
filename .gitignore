@@ -35,3 +35,5 @@ node_modules
 # poloact-app
 poloact-app/node_modules
 poloact-app/dist
+poloact-demo/node_modules
+poloact-demo/dist
