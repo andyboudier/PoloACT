@@ -28,6 +28,20 @@ Sign-ups are seeded open on every day using the app's own captain override
 (`booking-open-<day>`), so a visitor who arrives after a deadline can still try
 the thing the app is for.
 
+## Keeping it current
+
+The demo has no behaviour of its own, so keeping it in step with TPPC is a copy
+plus a rebrand rather than a merge:
+
+```bash
+node resync-from-tppc.mjs /path/to/tppc/polo-chukkas-deploy
+```
+
+It copies the shared source, re-applies the palette and the names, and leaves
+the files that *are* the demo — `storage.js`, `demoSeed.js`, `DemoChrome.jsx`,
+`main.jsx`, `index.html`, `vite.config.js` — alone. If TPPC has moved an anchor
+the script stops and names it rather than half-rebranding.
+
 ## Rebranding
 
 The palette is the club apps' CSS variables with PoloACT's values — field green
