@@ -20,9 +20,37 @@ export default function DemoChrome() {
     <>
       <style>{`
         :root { --demo-bar: 34px; }
-        body { padding-top: var(--demo-bar); }
+
+        /* The bar takes a strip of the window and the app gets the rest, rather
+           than the bar floating over the app. That matters for the chukka and
+           fixture boards: they open as position:fixed, inset:0 overlays, which
+           are laid out against the window, so a floating bar sat over their top
+           row of controls. The transform on .demo-app makes it the containing
+           block for the fixed elements inside it, so a full-screen board fills
+           the space below the bar instead of running behind it.
+           The app now scrolls inside .demo-app; main.jsx points the one call
+           that scrolled the window at the box instead. */
+        html, body, #root { height: 100%; }
+        body { margin: 0; }
+        #root { display: flex; flex-direction: column; }
+        /* Two elements, not one: .demo-app is the containing block and never
+           scrolls, .demo-scroll does the scrolling inside it. Combining the two
+           put the overlays into the scrolling content, so a board slid up the
+           screen as the page behind it scrolled. */
+        .demo-app {
+          flex: 1 1 auto;
+          min-height: 0;
+          position: relative;
+          transform: translateZ(0);
+        }
+        .demo-scroll {
+          height: 100%;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+
         .demo-bar {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+          flex: 0 0 var(--demo-bar);
           height: var(--demo-bar);
           display: flex; align-items: center; justify-content: center; gap: 10px;
           padding: 0 12px;
