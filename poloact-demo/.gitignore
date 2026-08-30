@@ -20,3 +20,6 @@ build/
 *.jks
 *.keystore
 polo-chukkas-deploy/android/app/google-services.json
+
+# test screenshots
+demo-*.png
