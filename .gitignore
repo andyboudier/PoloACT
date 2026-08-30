@@ -31,3 +31,7 @@ yarn-error.log*
 next-env.d.ts
 node_modules
 .next
+
+# poloact-app
+poloact-app/node_modules
+poloact-app/dist
