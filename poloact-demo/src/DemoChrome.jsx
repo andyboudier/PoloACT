@@ -84,8 +84,8 @@ export default function DemoChrome() {
         ) : (
           <>
             <span className="hint">
-              Sample club. Changes are yours alone
-              <span className="hide-sm"> — captain PIN 1907</span>
+              <span className="hide-sm">Sample club. Changes are yours alone — </span>
+              captain PIN <b>0000</b>
             </span>
             <button type="button" onClick={() => setConfirming(true)}>Reset demo</button>
           </>
