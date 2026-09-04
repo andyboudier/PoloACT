@@ -9,8 +9,8 @@
 //
 //   node resync-from-tppc.mjs /path/to/tppc/polo-chukkas-deploy
 //
-// Files that ARE the demo — storage.js, demoSeed.js, DemoChrome.jsx, main.jsx,
-// index.html, vite.config.js — are never touched.
+// Files that ARE the demo — storage.js, trophyStore.js, demoSeed.js,
+// DemoChrome.jsx, main.jsx, index.html, vite.config.js — are never touched.
 
 import { readFileSync, writeFileSync, copyFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -100,4 +100,4 @@ if (fail.length) {
 }
 writeFileSync(p, s);
 console.log(`rebranded: palette, contact, header, ${clubs} club names, ${files} download prefixes`);
-console.log('\nleft alone: storage.js, demoSeed.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js');
+console.log('\nleft alone: storage.js, trophyStore.js, demoSeed.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js');
