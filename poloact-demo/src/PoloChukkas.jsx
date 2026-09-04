@@ -1317,7 +1317,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
   }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Captain PIN — visible in source, this is a soft gate not real security
-  const CAPTAIN_PIN = '1907';
+  const CAPTAIN_PIN = '0000';
 
   // Booking cutoffs are no longer hard-coded per day: each day closes `d` days
   // before the session at time `t`, taken from the captain's saved value or the
