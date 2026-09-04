@@ -43,7 +43,7 @@ const useIsDesktop = () => {
   return wide;
 };
 
-// 2026 PoloACT Demo Polo Club grass fixtures
+// 2026 Tedworth Park Polo Club grass fixtures
 const FIXTURES_2026 = [
   { id: 'apr-3',     month: 'April',     date: 'Fri 3 April',           name: 'Area 14 Pony Club Tournament', level: 'Arena' },
   { id: 'apr-11',    month: 'April',     date: 'Sat 11 April',          name: 'Coaching Begins · Pre-Season Welcome Drinks', level: 'Clubhouse from 16:00' },
@@ -753,6 +753,91 @@ while (movedOne && guard-- > 0) {
   }
 }
 
+// Fill every seat. An empty seat is two problems at once: that chukka plays a
+// man short, and somebody who asked for a chukka is not getting one. Both
+// outrank keeping everybody's run unbroken, so this pass will hand a player a
+// break if that is what it takes to leave no seat empty.
+//
+// It is worth being concrete about why a pass is needed at all. Seating players
+// one at a time cannot always fill an evening even when a perfect filling
+// exists: on an 18-player Saturday wanting 72 chukkas in 9 chukkas of 8, the
+// last free seat came out in a chukka the short player was already in, so no
+// amount of adding could reach it. Somebody else has to move first.
+//
+// Two moves, cheapest first, where cost is the chukkas a player ends up sitting
+// out that they were not sitting out before:
+//   (a) a player who is short simply takes the seat;
+//   (b) a player already in the draw shifts into the seat, freeing the one they
+//       leave for a player who is short.
+// (b) is what solves the case above: the free seat is in the last chukka, a
+// player from the middle moves into it, and the short player takes the middle
+// seat and keeps an unbroken run.
+const idleOf = (list) =>
+  list.length ? Math.max(...list) - Math.min(...list) + 1 - list.length : 0;
+const costOfAdding = (st, c) => idleOf([...st.mine, c]) - idleOf(st.mine);
+const costOfMoving = (st, from, to) =>
+  idleOf([...st.mine.filter(x => x !== from), to]) - idleOf(st.mine);
+
+let repairs = numChukkas * SLOTS_PER_CHUKKA;
+let seatFilled = true;
+while (seatFilled && repairs-- > 0) {
+  seatFilled = false;
+  const stillShort = state.filter(s => s.mine.length < s.target);
+  if (!stillShort.length) break;
+
+  for (let c = 0; c < numChukkas && !seatFilled; c++) {
+    if (!hasRoom(c)) continue;
+
+    // (a) Straight in.
+    let direct = null;
+    for (const s of stillShort) {
+      if (c < s.win.from || c > s.win.to) continue;
+      if (isIn(c, s.player) || !spacingOk(s.player, c, s.mine)) continue;
+      const cost = costOfAdding(s, c);
+      if (!direct || cost < direct.cost) direct = { s, cost };
+    }
+    if (direct) {
+      seat(direct.s, c);
+      direct.s.mine.sort((a, b) => a - b);
+      seatFilled = true;
+      break;
+    }
+
+    // (b) Somebody shifts into the seat so a short player can have theirs.
+    let chain = null;
+    for (const s of stillShort) {
+      for (let d = s.win.from; d <= s.win.to; d++) {
+        if (hasRoom(d)) continue;                       // (a) will reach that seat
+        if (isIn(d, s.player) || !spacingOk(s.player, d, s.mine)) continue;
+        for (const q of chukkaPlayers[d]) {
+          if (q.vip) continue;                          // VIPs are never moved
+          const qs = stateOf(q.id);
+          if (!qs || qs === s) continue;
+          if (c < qs.win.from || c > qs.win.to) continue;
+          if (isIn(c, q)) continue;
+          const qAfter = qs.mine.filter(x => x !== d);
+          if (!spacingOk(q, c, qAfter)) continue;
+          const cost = costOfMoving(qs, d, c) + costOfAdding(s, d);
+          if (!chain || cost < chain.cost) chain = { s, qs, d, cost };
+        }
+      }
+    }
+    if (chain) {
+      const { s, qs, d } = chain;
+      qs.mine = qs.mine.filter(x => x !== d);
+      chukkaPlayers[d] = chukkaPlayers[d].filter(p => p.id !== qs.player.id);
+      qs.mine.push(c);
+      qs.mine.sort((a, b) => a - b);
+      chukkaPlayers[c].push(qs.player);
+      seat(s, d);
+      s.mine.sort((a, b) => a - b);
+      seatFilled = true;
+      break;
+    }
+  }
+}
+
+
 const assignments = new Map();
 state.forEach((st) => {
   if (st.mine.length < st.cappedWanted) {
@@ -1317,7 +1402,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
   }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Captain PIN — visible in source, this is a soft gate not real security
-  const CAPTAIN_PIN = '0000';
+  const CAPTAIN_PIN = '1907';
 
   // Booking cutoffs are no longer hard-coded per day: each day closes `d` days
   // before the session at time `t`, taken from the captain's saved value or the
@@ -1325,7 +1410,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
   // reproduce what these days have always done — Wednesday closes Tuesday at
   // noon, everything else 24 hours before throw-in.
   // Captain mode always bypasses the cutoff.
-  const CONTACT_EMAIL = 'hello@poloact.co.uk';
+  const CONTACT_EMAIL = 'info@tedworthparkpolo.com';
 
   // Thursday ladies and Friday instructional are small sessions with a hard
   // capacity: the arena only takes 6, anywhere else 8. Days with no capOther in
@@ -2619,7 +2704,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
       entry.owed ? `${entry.owed} \u2014 please settle with the captain.` : null,
       '',
       'See you there,',
-      'PoloACT Demo Polo Club',
+      'Tedworth Park Polo Club',
     ].filter(l => l !== null).join('\n');
     return `mailto:${entry.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
@@ -2864,7 +2949,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
     if (!schedule) return '';
     const dateStr = getDateStr();
 
-    let text = `*PoloACT Demo Polo Club*\n`;
+    let text = `*Tedworth Park Polo Club*\n`;
     text += `_${activeDayConfig.fullLabel} Chukkas — ${dateStr}_\n`;
     text += `🐎 ${schedule.numChukkas} chukkas, ${chukkaTime(0, throwInMin)} throw-in\n`;
     if (ground) text += `📍 ${ground}\n`;
@@ -2924,7 +3009,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
 
     const times = schedule.chukkas.map(c => c.time).join(' · ');
 
-    let text = `*PoloACT Demo Polo Club*\n`;
+    let text = `*Tedworth Park Polo Club*\n`;
     text += `_${activeDayConfig.fullLabel} Chukkas — ${dateStr}_\n`;
     if (ground) text += `📍 ${ground}\n`;
     text += `🐎 Chukkas: ${times}\n\n`;
@@ -2944,7 +3029,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
     const blob = await generatePNGBlob();
     if (!blob) return;
 
-    const filename = `poloact-demo-chukkas-${getDateSlug()}.png`;
+    const filename = `TPPC-chukkas-${getDateSlug()}.png`;
     const file = new File([blob], filename, { type: 'image/png' });
 
     // Try Web Share API with files (mobile-first: lets user pick WhatsApp from
@@ -3078,7 +3163,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `poloact-demo-chukkas-${getDateSlug()}.xls`;
+    a.download = `TPPC-chukkas-${getDateSlug()}.xls`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -3124,7 +3209,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
     ctx.font = '500 22px Georgia, "Times New Roman", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('PoloACT Demo Polo Club', W / 2, padding + 16);
+    ctx.fillText('Tedworth Park Polo Club', W / 2, padding + 16);
     ctx.fillStyle = '#6b5e4e';
     ctx.font = 'italic 13px Georgia, "Times New Roman", serif';
     ctx.fillText(`${activeDayConfig.fullLabel} Chukkas · ${dateStr}${ground ? ' · ' + ground : ''}`, W / 2, padding + 40);
@@ -3257,7 +3342,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `poloact-demo-chukkas-${getDateSlug()}.png`;
+    a.download = `TPPC-chukkas-${getDateSlug()}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -4186,17 +4271,17 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500;600;700&display=swap');
 
         .polo-app {
-          --burgundy: #1f3d2b;
-          --burgundy-deep: #14291d;
-          --burgundy-soft: #2c5540;
-          --cream: #f3ede1;
-          --cream-warm: #e8e0cf;
-          --cream-pale: #fbf9f4;
-          --gold: #a97f45;
-          --gold-bright: #c6a468;
-          --ink: #1a241c;
-          --muted: #6b6456;
-          --line: #e0d8c4;
+          --burgundy: #6b1f2a;
+          --burgundy-deep: #4a1419;
+          --burgundy-soft: #8a2f3a;
+          --cream: #f4ecd8;
+          --cream-warm: #e9dec3;
+          --cream-pale: #faf5e6;
+          --gold: #b8924a;
+          --gold-bright: #d4a85a;
+          --ink: #1c1612;
+          --muted: #6b5e4e;
+          --line: #d4c8a8;
           --danger: #9a2a2a;
           --blue: #2a4a6e;
           --blue-deep: #1e3552;
@@ -5431,7 +5516,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
         {isDesktop && captainMode && chukkaBoardOpen && (
           <Suspense fallback={null}>
           <ChukkaBoard
-            clubName="PoloACT Demo Polo Club"
+            clubName="Tedworth Park Polo Club"
             dayKeys={DAY_KEYS}
             dayConfig={DAY_CONFIG}
             dayKey={activeDay}
@@ -5498,7 +5583,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}
           >
-            <img src="/apple-touch-icon.png" alt="PoloACT Demo Polo Club" width="128" height="128" style={{ width: '128px', height: '128px' }} />
+            <img src="/apple-touch-icon.png" alt="Tedworth Park Polo Club" width="128" height="128" style={{ width: '128px', height: '128px' }} />
             <div style={{ width: '32px', height: '32px', border: '3px solid rgba(0,0,0,0.12)', borderTopColor: '#6b1f2a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <div style={{ color: 'rgba(0,0,0,0.55)', fontFamily: "'Outfit', system-ui, sans-serif", fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.9 }}>Loading…</div>
           </div>
@@ -5517,13 +5602,13 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
         >
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="display-italic" style={{ fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', opacity: 0.75, marginBottom: '4px' }}>
-              A PoloACT demo club
+              Est. 1907
             </div>
             <h1 className="display" style={{ fontSize: '30px', margin: 0, lineHeight: 1.05, letterSpacing: '-0.3px' }}>
-              PoloACT
+              Tedworth Park
             </h1>
             <div className="display-italic" style={{ fontSize: '20px', opacity: 0.95, marginTop: '-2px' }}>
-              Demo Polo Club
+              Polo Club
             </div>
             <div className="ornament">
               <span className="ornament-line" />
@@ -5531,7 +5616,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
               <span className="ornament-line" />
             </div>
             <div className="display-italic" style={{ fontSize: '11px', opacity: 0.8, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
-              Everything here is made up
+              Home of Military Polo
             </div>
           </div>
         </header>
@@ -8898,7 +8983,7 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
         </main>
 
         <footer style={{ textAlign: 'center', padding: '22px 20px', borderTop: '1px solid var(--line)', fontSize: '10px', color: 'var(--muted)', letterSpacing: '2px', textTransform: 'uppercase', background: 'var(--cream-warm)' }}>
-          <div>PoloACT Demo Polo Club · Tidworth, Wiltshire</div>
+          <div>Tedworth Park Polo Club · Tidworth, Wiltshire</div>
           <div style={{ marginTop: '4px', fontSize: '9px', opacity: 0.7 }}>© ACT Systems Ltd. 2026</div>
           <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <button
@@ -9100,12 +9185,12 @@ const [ponyHire, setPonyHire] = useState(false);  // signup: needs to hire a pon
                   Last updated: May 2026
                 </p>
                 <p>
-                  This notice explains how the Committee of PoloACT Demo Polo Club handles your personal information when you use this Wednesday Chukkas booking page. We aim to comply with UK GDPR and the Data Protection Act 2018.
+                  This notice explains how the Committee of Tedworth Park Polo Club handles your personal information when you use this Wednesday Chukkas booking page. We aim to comply with UK GDPR and the Data Protection Act 2018.
                 </p>
 
                 <h4 style={{ marginBottom: '4px', fontFamily: "'Fraunces', serif", fontSize: '15px' }}>Who we are</h4>
                 <p style={{ marginTop: 0 }}>
-                  The Committee of PoloACT Demo Polo Club, Tidworth, Wiltshire is the data controller for the information you provide via this page. For any privacy queries — including requests to access, correct or delete your data — contact the Club Captain.
+                  The Committee of Tedworth Park Polo Club, Tidworth, Wiltshire is the data controller for the information you provide via this page. For any privacy queries — including requests to access, correct or delete your data — contact the Club Captain.
                 </p>
 
                 <h4 style={{ marginBottom: '4px', fontFamily: "'Fraunces', serif", fontSize: '15px' }}>What we collect</h4>
