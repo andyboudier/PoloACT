@@ -82,13 +82,6 @@ sub("  const CONTACT_EMAIL = 'info@tedworthparkpolo.com';",
 sub("  const CAPTAIN_PIN = '1907';",
     "  const CAPTAIN_PIN = '0000';", 'captain PIN');
 
-// The demo's captain PIN is 0000, not the club's. Anyone should be able to see
-// the captain's side of the app without being told a code, and the demo bar
-// prints it on screen — so it may as well be the most obvious four digits
-// there are. The clubs keep their own PIN.
-sub("  const CAPTAIN_PIN = '1907';",
-    "  const CAPTAIN_PIN = '0000';", 'captain PIN');
-
 sub(`              Est. 1907
             </div>`, `              A PoloACT demo club
             </div>`, 'header eyebrow');
