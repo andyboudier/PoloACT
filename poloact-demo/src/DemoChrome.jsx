@@ -101,12 +101,12 @@ export default function DemoChrome() {
             <span className="hint">
               {firebaseConfigured ? (
                 <>
-                  <span className="hide-sm">Sample club, reset nightly. Sign in to book chukkas · </span>
+                  <span className="hide-sm">Sample club, reset nightly. Sign in to book chukkas — <b>harriet@poloact.demo</b> books for her team · </span>
                   captain PIN <b>0000</b> scores games
                 </>
               ) : (
                 <>
-                  <span className="hide-sm">Sample club, yours alone. Sign in with any email — <b>admin@poloact.demo</b> runs it · </span>
+                  <span className="hide-sm">Sample club, yours alone. Sign in with any email — <b>harriet@poloact.demo</b> books for her team, <b>admin@poloact.demo</b> runs it · </span>
                   captain PIN <b>0000</b> scores games
                 </>
               )}

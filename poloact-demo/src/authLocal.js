@@ -7,8 +7,8 @@
 // It is deliberately easy: any email and password creates or opens an
 // account, "email me a link" signs you in on the spot, and the Google and
 // Apple buttons sign you in as a sample account. Nothing leaves the browser.
-// The admin bootstrap list comes from VITE_ADMIN_EMAILS, or falls back to the
-// sample admin below so there is always a way to see the admin side.
+// The admin bootstrap list is VITE_ADMIN_EMAILS plus the sample admin below,
+// so there is always a way to see the admin side whatever the deployment sets.
 import { FIXED_ADMIN_EMAILS } from './demoConfig';
 import { announceAuthChange } from './auth';
 
@@ -16,7 +16,7 @@ const KEY = 'poloact-demo-auth';
 export const SAMPLE_ADMIN = 'admin@poloact.demo';
 
 const lower = (s) => String(s || '').trim().toLowerCase();
-const fixed = FIXED_ADMIN_EMAILS.length ? FIXED_ADMIN_EMAILS : [SAMPLE_ADMIN];
+const fixed = [...new Set([...FIXED_ADMIN_EMAILS.map(lower), SAMPLE_ADMIN])];
 
 const read = () => {
   try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; }

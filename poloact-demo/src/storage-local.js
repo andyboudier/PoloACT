@@ -18,7 +18,7 @@ const SEED_KEY = 'poloact-demo-seeded';
 
 // Bumped whenever demoSeed changes, so returning visitors pick up a new seed
 // rather than being stuck with last month's sample club.
-const SEED_VERSION = '3';
+const SEED_VERSION = '4';
 
 const readStore = () => {
   try {

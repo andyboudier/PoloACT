@@ -19,7 +19,7 @@ account, "email me a link" signs you in on the spot, and the Google and Apple
 buttons sign you in as a sample account. Every visitor gets their own clean
 copy of the sample club; nothing is shared and nothing to police. **Reset demo**
 in the top bar puts it back. `admin@poloact.demo` is an admin, so the whole
-admin side can be shown.
+admin side can be shown; any address in `VITE_ADMIN_EMAILS` is an admin here too.
 
 **Firebase** (the six `VITE_FIREBASE_*` values set — see `.env.example`). The
 demo runs on its own Firebase project: `src/storage-firestore.js` (TPPC's own
@@ -47,9 +47,22 @@ shared with the club apps and switched off there). With it on:
 | Who | Can |
 |---|---|
 | Anyone, not signed in | See fixtures, published draws and live scores. |
-| Member (signed in) | Book chukkas as themselves — name, handicap and mobile come from their profile — and take their own name off a list. |
+| Member (signed in) | Book chukkas as themselves and, if their player record names a team, book their teammates in too — nobody else. Take off a list what they put on it. |
 | Captain PIN (`0000`) | Enter live scores. Nothing else. |
 | Admin | Everything the PIN used to cover: chukka lists and the draw, the player database, tournaments and the team board, shop, payments, and the admins list itself (Players → Admins). |
+
+A member is matched to the **player database** (Players tab) on the email
+they sign in with: an admin puts the email on the record, and from then on that
+person books as that record — its name and handicap, no profile questions on
+first sign-in. Records carry a free-text *Team*; players who share one may book
+each other in, and the list shows who did the booking. With no record, a member
+books as their profile says, and only themselves.
+
+The sample club seeds thirteen players at `<first name>@poloact.demo` in three
+teams — The Kestrels (Harriet, Tom, Priya, Nick), Longacre (Rosie, Clare, Sam,
+James) and Mill House (Anna, Ed, Marcus) — plus Louisa and Hugo with no team.
+In browser-only mode any password works, so `harriet@poloact.demo` is the
+quickest way to try booking a teammate.
 
 Admins are the emails in the Firestore document `config/admins`, plus whatever
 `VITE_ADMIN_EMAILS` names — those can never be removed in-app, so nobody can

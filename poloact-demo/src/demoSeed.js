@@ -82,6 +82,34 @@ const SUN = [
   player(5008, 'Nick Barlow', -1, 2, { noConsecutive: true }),
 ];
 
+// The player database — the club's own record of who plays, which is what a
+// signed-in member is matched to (on email). The three tournament teams are
+// also chukka teams here, so anyone on one can book their teammates in:
+// sign in as harriet@poloact.demo and the form offers Tom, Priya and Nick.
+// Every address is on the demo's own domain; none of them receives mail.
+const dbPlayer = (id, name, handicap, email, team, membership, extra = {}) => ({
+  id, name, handicap, email, mobile: '', type: 'Member', membership,
+  military: false, unit: '', active: true, subsidies: [], notes: '', team,
+  updatedAt: 0,
+  ...extra,
+});
+const PLAYERS = [
+  dbPlayer('demo-p01', 'Harriet Vane',   2,  'harriet@poloact.demo', 'The Kestrels', 'civ-full'),
+  dbPlayer('demo-p02', 'Tom Fenwick',    1,  'tom@poloact.demo',     'The Kestrels', 'civ-full'),
+  dbPlayer('demo-p03', 'Priya Raman',    0,  'priya@poloact.demo',   'The Kestrels', 'civ-individual'),
+  dbPlayer('demo-p04', 'Nick Barlow',   -1,  'nick@poloact.demo',    'The Kestrels', 'none'),
+  dbPlayer('demo-p05', 'Rosie Calder',   2,  'rosie@poloact.demo',   'Longacre',     'civ-full'),
+  dbPlayer('demo-p06', 'Clare Ogilvy',   1,  'clare@poloact.demo',   'Longacre',     'civ-full-excl'),
+  dbPlayer('demo-p07', 'Sam Whitfield',  0,  'sam@poloact.demo',     'Longacre',     'civ-individual'),
+  dbPlayer('demo-p08', 'James Ackroyd', -1,  'james@poloact.demo',   'Longacre',     'none'),
+  dbPlayer('demo-p09', 'Anna Delacroix', 1,  'anna@poloact.demo',    'Mill House',   'civ-full'),
+  dbPlayer('demo-p10', 'Ed Mainwaring',  0,  'ed@poloact.demo',      'Mill House',   'mil-full-nonpony', { military: true, unit: 'Household Cavalry' }),
+  dbPlayer('demo-p11', 'Marcus Vane',    1,  'marcus@poloact.demo',  'Mill House',   'civ-full-u23'),
+  // Two members of the club with no team: they can book themselves and no one else.
+  dbPlayer('demo-p12', 'Louisa Brett',   0,  'louisa@poloact.demo',  '',             'civ-full'),
+  dbPlayer('demo-p13', 'Hugo Sandford', -1,  'hugo@poloact.demo',    '',             'civ-day'),
+];
+
 // The members directory the sign-up form autocompletes from.
 const directory = () => {
   const all = [...WED, ...THU, ...FRI, ...SAT, ...SUN];
@@ -182,6 +210,7 @@ export function buildDemoData() {
     [key('ground', 'sat')]: 'Number One Ground',
     [key('ground', 'sun')]: 'Number One Ground',
     members: JSON.stringify(directory()),
+    players: JSON.stringify(PLAYERS),
     fixtures: JSON.stringify(fixtures),
     'fixture-details': JSON.stringify(details),
     committee: JSON.stringify(['R. Calder', 'T. Fenwick', 'P. Raman', 'S. Whitfield']),
