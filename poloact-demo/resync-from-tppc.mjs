@@ -30,7 +30,7 @@ const to = new URL('./src/', import.meta.url).pathname;
 const SHARED = [
   'PoloChukkas.jsx', 'tournamentPdf.js', 'pdfShared.js', 'pdfFonts.js',
   'FixtureBoard.jsx', 'ChukkaBoard.jsx', 'liveScoreActivity.js',
-  'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx',
+  'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx', 'EntryContact.jsx',
 ];
 for (const f of SHARED) {
   const src = join(from, f);
@@ -86,6 +86,12 @@ sub("  const CONTACT_EMAIL = 'info@tedworthparkpolo.com';",
 // the captain's side of the app without being told a code, and the demo bar
 // prints it on screen — so it may as well be the most obvious four digits
 // there are. The clubs keep their own PIN.
+// Entering a tournament in the demo is a note to the office, not the full
+// registration form: the fixtures list was too much form. The PoloACT hub
+// emails it on.
+sub("  const TOURNAMENT_ENTRY = { mode: 'form', endpoint: '', email: CONTACT_EMAIL };",
+    "  const TOURNAMENT_ENTRY = { mode: 'contact', endpoint: 'https://poloact.co.uk/api/tournament-entry', email: CONTACT_EMAIL };", 'tournament entry mode');
+
 sub("  const CAPTAIN_PIN = '1907';",
     "  const CAPTAIN_PIN = '0000';", 'captain PIN');
 
