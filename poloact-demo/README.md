@@ -19,7 +19,7 @@ account, "email me a link" signs you in on the spot, and the Google and Apple
 buttons sign you in as a sample account. Every visitor gets their own clean
 copy of the sample club; nothing is shared and nothing to police. **Reset demo**
 in the top bar puts it back. `admin@poloact.demo` is an admin, so the whole
-admin side can be shown.
+admin side can be shown; any address in `VITE_ADMIN_EMAILS` is an admin here too.
 
 **Firebase** (the six `VITE_FIREBASE_*` values set — see `.env.example`). The
 demo runs on its own Firebase project: `src/storage-firestore.js` (TPPC's own
