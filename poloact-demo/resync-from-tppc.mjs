@@ -9,8 +9,11 @@
 //
 //   node resync-from-tppc.mjs /path/to/tppc/polo-chukkas-deploy
 //
-// Files that ARE the demo — storage.js, trophyStore.js, demoSeed.js,
-// DemoChrome.jsx, main.jsx, index.html, vite.config.js — are never touched.
+// Files that ARE the demo — storage-local.js, trophyStore.js, trophyStore-local.js, demoSeed.js,
+// demoReset.js, demoConfig.js, firebase.js, auth-provider.js, authFirebase.js,
+// authLocal.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js — are
+// never touched. TPPC's storage.js is copied in as storage-firestore.js: it is
+// what the demo runs on once its Firebase project is configured.
 
 import { readFileSync, writeFileSync, copyFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,14 +30,18 @@ const to = new URL('./src/', import.meta.url).pathname;
 const SHARED = [
   'PoloChukkas.jsx', 'tournamentPdf.js', 'pdfShared.js', 'pdfFonts.js',
   'FixtureBoard.jsx', 'ChukkaBoard.jsx', 'liveScoreActivity.js',
-  'handicap.js', 'stageMode.js',
+  'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx',
 ];
 for (const f of SHARED) {
   const src = join(from, f);
   if (!existsSync(src)) { console.warn(`  skipped (not in TPPC): ${f}`); continue; }
   copyFileSync(src, join(to, f));
 }
-console.log(`copied ${SHARED.length} shared source files`);
+// Same file, different name: TPPC's Firestore storage becomes the demo's
+// Firestore mode. Its own firebase.js supplies the demo project's `db`.
+copyFileSync(join(from, 'storage.js'), join(to, 'storage-firestore.js'));
+copyFileSync(join(from, 'trophyStore.js'), join(to, 'trophyStore-firestore.js'));
+console.log(`copied ${SHARED.length + 2} shared source files`);
 
 // ── Rebrand ────────────────────────────────────────────────────────────
 const p = join(to, 'PoloChukkas.jsx');
@@ -107,4 +114,4 @@ if (fail.length) {
 }
 writeFileSync(p, s);
 console.log(`rebranded: palette, contact, header, ${clubs} club names, ${files} download prefixes`);
-console.log('\nleft alone: storage.js, trophyStore.js, demoSeed.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js');
+console.log('\nleft alone: storage-local.js, trophyStore.js (selector), trophyStore-local.js, demoSeed.js, demoReset.js, demoConfig.js, firebase.js, auth-provider.js, authFirebase.js, authLocal.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js');

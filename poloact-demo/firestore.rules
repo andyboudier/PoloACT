@@ -1,0 +1,73 @@
+rules_version = '2';
+
+// Firestore rules for the PoloACT demo project.
+//
+// Deploy from the Firebase console (Firestore → Rules) or with
+//   firebase deploy --only firestore:rules
+//
+// Three kinds of reader/writer, matching auth.js in the app:
+//   anyone      may read the club: fixtures, draws, live scores.
+//   a member    (any signed-in user) may write the chukka side — the lists
+//               they book on to, and the records booking touches.
+//   an admin    (email in config/admins, or in the app's fixed list) may write
+//               everything: fixtures, the team board, players, payments.
+//
+// The club's data is the `shared` collection: one document per key, each
+// holding { value } — the storage model the club apps use. Members' own
+// details live in users/{uid}.
+//
+// Note for a club rollout: rosters are one document per day, so a member who
+// may write "roster-sat" may in principle alter another member's entry in it.
+// Fine for a demo that is reset nightly; a club would want per-entry
+// documents before relying on this.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function email() {
+      return signedIn() && request.auth.token.email != null
+        ? request.auth.token.email.lower()
+        : '';
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/config/admins)
+        && email() in get(/databases/$(database)/documents/config/admins).data.emails;
+    }
+
+    // What booking a chukka touches: the day's list and waiting list, the
+    // draw it invalidates, the members directory, and the fees ledger.
+    function memberKey(key) {
+      return key.matches('roster(-.*)?')
+        || key.matches('roster-week(-.*)?')
+        || key.matches('waitlist(-.*)?')
+        || key.matches('schedule(-.*)?')
+        || key == 'members'
+        || key == 'transactions';
+    }
+
+    match /shared/{key} {
+      allow read: if true;
+      allow write: if isAdmin() || (signedIn() && memberKey(key));
+    }
+
+    match /config/admins {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Trophy photographs, uploaded by admins, shown to everyone.
+    match /trophy-images/{key} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
