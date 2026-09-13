@@ -13,6 +13,7 @@ import { useAuth } from './auth';
 export default function DemoChrome() {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   const auth = useAuth();
   const isAdmin = auth.enabled && auth.role === 'admin';
 
@@ -22,10 +23,23 @@ export default function DemoChrome() {
   const canReset = !firebaseConfigured || isAdmin;
 
   const reset = async () => {
-    setBusy(true);
+    setBusy(true); setError('');
     try {
       await resetDemo();
-    } catch (e) { /* fall through to the reload, which re-seeds anyway in browser mode */ }
+    } catch (e) {
+      // Browser-only mode reseeds on the reload below whatever happened, so a
+      // failure there is not worth reporting. In Firebase mode it means the
+      // write was refused — almost always because config/admins does not name
+      // this account, which is exactly the thing a silent failure hides.
+      if (firebaseConfigured) {
+        const denied = /permission|insufficient/i.test(String((e && e.message) || e));
+        setError(denied
+          ? 'Firestore refused that. Check config/admins names your email.'
+          : 'That did not go through — see the console.');
+        setBusy(false);
+        return;
+      }
+    }
     if (!firebaseConfigured) window.location.reload();
     else { setBusy(false); setConfirming(false); }
   };
@@ -84,13 +98,19 @@ export default function DemoChrome() {
         .demo-bar button:hover { border-color: #c6a468; color: #c6a468; }
         .demo-bar button:disabled { opacity: 0.6; cursor: default; }
         .demo-bar .go { background: #c6a468; border-color: #c6a468; color: #14291d; font-weight: 600; }
+        .demo-bar .err { color: #f0b4a8; }
         @media (max-width: 560px) { .demo-bar .hide-sm { display: none; } }
       `}</style>
 
       <div className="demo-bar" role="note">
         <b>Demo</b>
         <span className="sep">·</span>
-        {confirming ? (
+        {error ? (
+          <>
+            <span className="hint err">{error}</span>
+            <button type="button" onClick={() => { setError(''); setConfirming(false); }}>OK</button>
+          </>
+        ) : confirming ? (
           <>
             <span className="hint">{firebaseConfigured ? 'Put the sample club back for everyone?' : 'Clear your changes and start again?'}</span>
             <button type="button" className="go" onClick={reset} disabled={busy}>{busy ? 'Resetting…' : 'Reset'}</button>

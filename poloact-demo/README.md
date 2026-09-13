@@ -82,11 +82,26 @@ everything.
    (and `localhost` is there already).
 4. **Firestore Database → Create database** (production mode), then paste
    `firestore.rules` into **Rules** and publish.
-5. **Project settings → Your apps → Web app**: register one and copy the six
+5. **Firestore → Data → Start collection** `config`, document id `admins`,
+   with one field `emails`, type *array*, holding your own address in lower
+   case.
+
+   Do this before using the app, not after. The rules decide who may write by
+   reading this document, and only an admin may create it — so on a brand-new
+   project nobody can write anything, the seed included, until it exists. It
+   is the one step that cannot be done from inside the app.
+6. **Project settings → Your apps → Web app**: register one and copy the six
    config values into Vercel as `VITE_FIREBASE_*`, with `VITE_ADMIN_EMAILS`
-   set to your own address. Redeploy.
-6. Sign in with that address, then press **Reset demo** in the top bar once to
-   seed the sample club.
+   set to the same address. Redeploy — Vercel only applies environment
+   variables to deployments built after they are set.
+7. Sign in with that address, then press **Reset demo** in the top bar once to
+   seed the sample club. If the bar says Firestore refused it, step 5 is
+   missing or names a different address.
+
+From then on the demo is a club app in every respect: real sign-in, shared
+data, the same rules, the same live sync between devices. Admins are managed
+in the app (Players → any record → **Admin**, or Players → Admins), and
+`VITE_ADMIN_EMAILS` stays as the lock you cannot be shut out of.
 
 ### Google and Apple sign-in
 
