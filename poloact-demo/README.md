@@ -141,7 +141,19 @@ links, password resets) can go the same way through Resend's SMTP.
    *Verified*.
 2. Resend → API Keys → create one with *Sending access*. On the hub's Vercel
    project set `RESEND_API_KEY`, `MAIL_FROM=PoloACT <hello@poloact.co.uk>`,
-   `DEMO_RECIPIENT` and `ENTRY_RECIPIENT` (the office inbox). Redeploy.
+   `DEMO_RECIPIENT`, and `CLUB_RECIPIENTS` (below). Redeploy — Vercel only
+   applies environment variables to deployments built after they are set.
+
+   All four apps send through this one route; the only difference is the
+   office each reaches. Each app names itself with a `CLUB_ID` in its source
+   and the hub maps that to an address, so no address ever travels in the
+   request:
+
+   ```
+   CLUB_RECIPIENTS=tppc:info@tedworthparkpolo.com,druids:…,vaux:…,demo:hello@poloact.co.uk
+   ```
+
+   `ENTRY_RECIPIENT` catches anything whose id is not in the map.
 3. Firebase console → Authentication → Templates → **SMTP settings**: enable,
    host `smtp.resend.com`, port `465` (SSL), username `resend`, password the
    API key, sender `PoloACT <noreply@poloact.co.uk>`. Then, still under

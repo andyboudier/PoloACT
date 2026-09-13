@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { escapeHtml, mailConfigured, sendMail } from "@/lib/mail";
+import { recipientFor } from "@/lib/recipients";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,13 +12,17 @@ export const dynamic = "force-dynamic";
 // carries a short "enter a team" form that lands here and goes to the office
 // as an email, and the office builds the team board from it.
 //
+// Every app sends here and only the office differs: the app names itself with
+// `clubId` and lib/recipients maps that to an address held on the server, so
+// no request can choose where mail goes.
+//
 // Sent through lib/mail (Resend for poloact.co.uk, or the Microsoft Graph
 // fallback). Environment:
-//   ENTRY_RECIPIENT   where entries go (defaults to DEMO_RECIPIENT, then the
-//                     Graph sender mailbox)
+//   CLUB_RECIPIENTS   "tppc:…,druids:…,vaux:…,demo:…" — see lib/recipients
+//   ENTRY_RECIPIENT   where an unknown clubId goes (then DEMO_RECIPIENT, then
+//                     the Graph sender mailbox)
 //   ENTRY_ORIGINS     comma-separated origins allowed to post here (defaults
 //                     to the demo and the club apps' own domains)
-const RECIPIENT = process.env.ENTRY_RECIPIENT || process.env.DEMO_RECIPIENT || process.env.DEMO_SENDER_UPN;
 const ORIGINS = (process.env.ENTRY_ORIGINS ||
   "https://demo.poloact.co.uk,https://tppc.poloact.co.uk,https://druids.poloact.co.uk,https://vaux.poloact.co.uk,http://localhost:5001,http://127.0.0.1:5001")
   .split(",").map((s) => s.trim()).filter(Boolean);
@@ -38,7 +43,7 @@ export async function OPTIONS(request: Request) {
 }
 
 type Entry = {
-  club?: string; fixture?: string; fixtureDate?: string; level?: string;
+  club?: string; clubId?: string; fixture?: string; fixtureDate?: string; level?: string;
   team?: string; name?: string; email?: string; mobile?: string; message?: string;
   company?: string; // honeypot
 };
@@ -53,15 +58,20 @@ export async function POST(request: Request) {
 
   const f = (v: unknown, n = 200) => String(v || "").trim().slice(0, n);
   const club = f(body.club), fixture = f(body.fixture), fixtureDate = f(body.fixtureDate), level = f(body.level);
+  const clubId = f(body.clubId, 40);
   const team = f(body.team), name = f(body.name), email = f(body.email), mobile = f(body.mobile, 40);
   const message = f(body.message, 2000);
   if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !fixture) {
     return NextResponse.json({ ok: false, error: "Please add your name, a valid email and the fixture." }, { status: 400, headers });
   }
+  const { to: RECIPIENT, matched } = recipientFor(clubId);
   if (!mailConfigured() || !RECIPIENT) {
     console.error("Tournament entry: no email sender or recipient is configured.");
     return NextResponse.json({ ok: false, error: "Email is not configured yet. Please try again later." }, { status: 503, headers });
   }
+  // Worth knowing about: a club whose id is missing from CLUB_RECIPIENTS is
+  // having its entries delivered to the default office rather than its own.
+  if (clubId && !matched) console.warn(`Tournament entry: no recipient for clubId "${clubId}" — sent to the default office.`);
 
   const row = (k: string, v: string) => v ? `<tr><td><strong>${escapeHtml(k)}</strong></td><td>${escapeHtml(v)}</td></tr>` : "";
   try {

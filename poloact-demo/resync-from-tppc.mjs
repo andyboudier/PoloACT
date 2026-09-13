@@ -92,6 +92,10 @@ sub("  const CONTACT_EMAIL = 'info@tedworthparkpolo.com';",
 sub("  const TOURNAMENT_ENTRY = { mode: 'form', endpoint: '', email: CONTACT_EMAIL };",
     "  const TOURNAMENT_ENTRY = { mode: 'contact', endpoint: 'https://poloact.co.uk/api/tournament-entry', email: CONTACT_EMAIL };", 'tournament entry mode');
 
+// Each app tells the hub which office to mail. The hub holds the addresses.
+sub("  const CLUB_ID = 'tppc';",
+    "  const CLUB_ID = 'demo';", 'club id');
+
 sub("  const CAPTAIN_PIN = '1907';",
     "  const CAPTAIN_PIN = '0000';", 'captain PIN');
 
