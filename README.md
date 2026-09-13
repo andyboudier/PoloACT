@@ -41,5 +41,5 @@ Push to the connected branch and Vercel builds and deploys automatically.
 - Placeholder content is flagged in the footer. Items still needed from the owner
   (real crest SVG, confirmed partner discounts, pricing, contact details) are listed
   in `CLAUDE.md`.
-- The demo form is front-end only (no backend yet); wire it to an email/CRM endpoint
+- The demo form posts to `/api/demo`, which emails the office through `lib/mail.ts` (Resend for poloact.co.uk; see `.env.example`)
   before launch.

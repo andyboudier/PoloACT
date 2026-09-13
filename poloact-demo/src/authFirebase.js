@@ -54,11 +54,15 @@ const provider = {
     try { localStorage.setItem(LINK_EMAIL_KEY, email); } catch (e) { /* ignore */ }
   },
   async signInWithGoogle() {
-    await popupOrRedirect(new GoogleAuthProvider());
+    const p = new GoogleAuthProvider();
+    // Always offer the account chooser: people share iPads at the club.
+    p.setCustomParameters({ prompt: 'select_account' });
+    await popupOrRedirect(p);
   },
   async signInWithApple() {
     const p = new OAuthProvider('apple.com');
     p.addScope('email'); p.addScope('name');
+    p.setCustomParameters({ locale: 'en_GB' });
     await popupOrRedirect(p);
   },
   async signOut() {
@@ -92,6 +96,9 @@ const provider = {
 // browser refuses one (in-app browsers, some iOS setups) fall back to a full
 // redirect, which getRedirectResult() completes on the way back.
 async function popupOrRedirect(p) {
+  // An installed PWA on iOS has no pop-up to open; go straight to redirect.
+  const standalone = (window.navigator && window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+  if (standalone) { await signInWithRedirect(fbAuth, p); return; }
   try {
     await signInWithPopup(fbAuth, p);
   } catch (e) {

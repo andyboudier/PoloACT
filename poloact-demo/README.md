@@ -49,7 +49,7 @@ shared with the club apps and switched off there). With it on:
 | Anyone, not signed in | See fixtures, published draws and live scores. |
 | Member (signed in) | Book chukkas as themselves and, if their player record names a team, book their teammates in too — nobody else. Take off a list what they put on it. |
 | Captain PIN (`0000`) | Enter live scores. Nothing else. |
-| Admin | Everything the PIN used to cover: chukka lists and the draw, the player database, tournaments and the team board, shop, payments, and the admins list itself (Players → Admins). |
+| Admin | Everything the PIN used to cover: chukka lists and the draw, the player database, tournaments and the team board, shop, payments, and the admins list itself (an **Admin** switch on each player record, and Players → Admins for anyone not in the database). |
 
 A member is matched to the **player database** (Players tab) on the email
 they sign in with: an admin puts the email on the record, and from then on that
@@ -87,6 +87,68 @@ everything.
    set to your own address. Redeploy.
 6. Sign in with that address, then press **Reset demo** in the top bar once to
    seed the sample club.
+
+### Google and Apple sign-in
+
+The app already has both: `authFirebase.js` opens a pop-up and falls back to a
+full-page redirect where pop-ups are not available (an installed PWA on iOS,
+in-app browsers). What remains is on the provider side.
+
+**Google** — Firebase console → Authentication → Sign-in method → Google →
+Enable; pick a project support email; save. Nothing else is needed for the
+web app. For a native app later, add the iOS bundle ID under Project
+settings → Your apps, and the OAuth client Firebase creates.
+
+**Apple** — needs an Apple Developer account:
+
+1. Certificates, Identifiers & Profiles → Identifiers → **+** → *Services
+   IDs*. Identifier e.g. `co.uk.poloact.demo.web`; enable *Sign In with
+   Apple*; configure it with the primary App ID and, as the return URL,
+   `https://<project-id>.firebaseapp.com/__/auth/handler`. Domain: the
+   `firebaseapp.com` host (and `demo.poloact.co.uk` if you use it as the auth
+   domain — see below).
+2. Keys → **+** → tick *Sign In with Apple* → download the `.p8` once.
+3. Firebase console → Authentication → Sign-in method → Apple → Enable, and
+   paste the Services ID, Apple Team ID, Key ID and the key's contents.
+4. Set `VITE_AUTH_APPLE=1` on the Vercel project and redeploy; the Apple
+   button appears.
+
+**Redirect sign-in on iOS.** Safari blocks the cross-site storage the redirect
+flow uses unless the auth pages are on the app's own domain. So set
+`VITE_FIREBASE_AUTH_DOMAIN=demo.poloact.co.uk` and add to `vercel.json`:
+
+```json
+"rewrites": [
+  { "source": "/__/auth/:path*", "destination": "https://<project-id>.firebaseapp.com/__/auth/:path*" }
+]
+```
+
+then add `demo.poloact.co.uk` to the authorised domains in Firebase, and use
+it as the return URL for Apple and in the Google OAuth client's authorised
+redirect URIs (`https://demo.poloact.co.uk/__/auth/handler`).
+
+### Email from poloact.co.uk (Resend)
+
+Two kinds of email leave the platform. The forms (demo requests, tournament
+entries) go through the hub's `lib/mail.ts`, which sends with
+[Resend](https://resend.com) when `RESEND_API_KEY` is set and falls back to
+the older Microsoft Graph sender otherwise. Firebase's own emails (sign-in
+links, password resets) can go the same way through Resend's SMTP.
+
+1. Resend → Domains → **Add domain** `poloact.co.uk`. Add the DNS records it
+   gives you (DKIM `resend._domainkey`, and the `send` subdomain's MX and SPF
+   TXT for the return path) where the domain's DNS lives; wait for
+   *Verified*.
+2. Resend → API Keys → create one with *Sending access*. On the hub's Vercel
+   project set `RESEND_API_KEY`, `MAIL_FROM=PoloACT <hello@poloact.co.uk>`,
+   `DEMO_RECIPIENT` and `ENTRY_RECIPIENT` (the office inbox). Redeploy.
+3. Firebase console → Authentication → Templates → **SMTP settings**: enable,
+   host `smtp.resend.com`, port `465` (SSL), username `resend`, password the
+   API key, sender `PoloACT <noreply@poloact.co.uk>`. Then, still under
+   Templates, set the sender name and reply-to on each template.
+
+Firebase's sign-in link and password-reset emails then arrive from
+`noreply@poloact.co.uk` rather than the project's `firebaseapp.com` address.
 
 ### Nightly reset
 
