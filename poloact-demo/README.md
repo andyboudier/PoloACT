@@ -73,6 +73,16 @@ everything.
 
 ### Setting up the Firebase project
 
+`./setup-firebase.sh` does the parts that have an API: it creates the project
+and the Firestore database, deploys these rules, writes the `config/admins`
+document, registers a web app and writes its config to `.env.local` (and, with
+`--vercel`, sets the same values on the Vercel project). Run
+`./setup-firebase.sh --dry-run` first to see what it would do. It stops and
+waits at the two points Google offers no API for — turning the sign-in methods
+on, and the authorised domains.
+
+Or do it all by hand:
+
 1. Firebase console → **Add project** (e.g. `poloact-demo`). No Analytics needed.
 2. **Authentication → Sign-in method**: enable *Email/Password* (tick *Email
    link (passwordless sign-in)* too) and *Google*. Apple later — it needs a

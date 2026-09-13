@@ -23,3 +23,8 @@ polo-chukkas-deploy/android/app/google-services.json
 
 # test screenshots
 demo-*.png
+
+# written by setup-firebase.sh, specific to whoever ran it
+firebase.json
+.firebaserc
+.firebase/
