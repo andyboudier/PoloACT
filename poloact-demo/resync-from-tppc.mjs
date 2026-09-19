@@ -31,7 +31,7 @@ const SHARED = [
   'PoloChukkas.jsx', 'tournamentPdf.js', 'pdfShared.js', 'pdfFonts.js',
   'FixtureBoard.jsx', 'ChukkaBoard.jsx', 'liveScoreActivity.js',
   'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx', 'EntryContact.jsx',
-  'groundPins.js', 'notices.js', 'NoticeBanner.jsx',
+  'groundPins.js', 'notices.js', 'NoticeBanner.jsx', 'lessons.js', 'LessonsBoard.jsx',
 ];
 for (const f of SHARED) {
   const src = join(from, f);
