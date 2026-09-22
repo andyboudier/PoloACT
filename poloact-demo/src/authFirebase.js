@@ -11,13 +11,20 @@
 import {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink,
-  GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
   signOut as fbSignOut, setPersistence, browserLocalPersistence,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth as fbAuth, db } from './firebase';
 import { FIXED_ADMIN_EMAILS, APPLE_SIGN_IN_ENABLED } from './demoConfig';
 import { announceAuthChange } from './auth';
+
+// The demo is where sign-in is actually on, unlike the clubs — the shared
+// Sign-in panel on the Lessons tab reads this to say so. installClubAuth() is
+// its way of asking for the provider; here auth-provider.js has already
+// installed it at boot, so there is nothing left to do.
+export const SIGN_IN_LIVE = true;
+export const installClubAuth = () => Promise.resolve(window.auth);
 
 const LINK_EMAIL_KEY = 'poloact-demo-link-email';
 const ADMINS_DOC = ['config', 'admins'];
@@ -31,7 +38,7 @@ let stopProfileWatch = null;
 const provider = {
   enabled: true,
   ready: false,
-  methods: ['password', 'link', 'google', ...(APPLE_SIGN_IN_ENABLED ? ['apple'] : [])],
+  methods: ['password', 'link', 'google', 'facebook', ...(APPLE_SIGN_IN_ENABLED ? ['apple'] : [])],
   fixedAdmins: FIXED_ADMIN_EMAILS,
   user: null,
   role: 'anon',
@@ -57,6 +64,11 @@ const provider = {
     const p = new GoogleAuthProvider();
     // Always offer the account chooser: people share iPads at the club.
     p.setCustomParameters({ prompt: 'select_account' });
+    await popupOrRedirect(p);
+  },
+  async signInWithFacebook() {
+    const p = new FacebookAuthProvider();
+    p.addScope('email');
     await popupOrRedirect(p);
   },
   async signInWithApple() {

@@ -30,7 +30,7 @@ const persist = () => write({ accounts: state.accounts, current: state.current, 
 const provider = {
   enabled: true,
   ready: true,
-  methods: ['password', 'link', 'google', 'apple'],
+  methods: ['password', 'link', 'google', 'facebook', 'apple'],
   fixedAdmins: fixed,
   user: null,
   role: 'anon',
@@ -62,6 +62,11 @@ const provider = {
   async signInWithGoogle() {
     const e = 'sample.google@poloact.demo';
     if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Sam Google', profile: null };
+    become(e);
+  },
+  async signInWithFacebook() {
+    const e = 'sample.facebook@poloact.demo';
+    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Frankie Face', profile: null };
     become(e);
   },
   async signInWithApple() {
