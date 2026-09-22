@@ -61,17 +61,17 @@ const provider = {
   },
   async signInWithGoogle() {
     const e = 'sample.google@poloact.demo';
-    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Sam Google', profile: null };
+    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Sam Google', profile: null, providers: ['google.com'] };
     become(e);
   },
   async signInWithFacebook() {
     const e = 'sample.facebook@poloact.demo';
-    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Frankie Face', profile: null };
+    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Frankie Face', profile: null, providers: ['facebook.com'] };
     become(e);
   },
   async signInWithApple() {
     const e = 'sample.apple@poloact.demo';
-    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Alex Apple', profile: null };
+    if (!state.accounts[e]) state.accounts[e] = { email: e, displayName: 'Alex Apple', profile: null, providers: ['apple.com'] };
     become(e);
   },
   async signOut() {
@@ -87,6 +87,20 @@ const provider = {
     };
     persist(); sync();
   },
+  // The stand-in has no real providers to link, so it just records that this
+  // account now has another way in — enough for the sheet and the bench to
+  // behave as they will against a real project.
+  async linkProvider(which) {
+    if (!state.current) throw new Error('Sign in first, then add another way in.');
+    const id = which === 'google' ? 'google.com' : which === 'apple' ? 'apple.com' : 'facebook.com';
+    const acc = state.accounts[state.current];
+    acc.providers = Array.from(new Set([...(acc.providers || []), id]));
+    persist(); sync();
+  },
+  async existingMethodsFor(email) {
+    const acc = state.accounts[lower(email)];
+    return acc ? (acc.providers || []) : [];
+  },
   async listAdmins() { return [...state.admins]; },
   async setAdmins(emails) {
     if (provider.role !== 'admin') throw new Error('Only an admin can change the admins.');
@@ -98,7 +112,7 @@ function become(email) { state.current = email; persist(); sync(); }
 
 function sync() {
   const acc = state.current ? state.accounts[state.current] : null;
-  provider.user = acc ? { uid: 'local:' + acc.email, email: acc.email, displayName: acc.displayName || '' } : null;
+  provider.user = acc ? { uid: 'local:' + acc.email, email: acc.email, displayName: acc.displayName || '', providers: acc.providers || [] } : null;
   provider.profile = acc ? acc.profile : null;
   provider.role = !acc ? 'anon'
     : (fixed.includes(acc.email) || state.admins.includes(acc.email)) ? 'admin'

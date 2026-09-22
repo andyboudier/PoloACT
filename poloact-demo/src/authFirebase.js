@@ -12,6 +12,7 @@ import {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink,
   GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  linkWithPopup, fetchSignInMethodsForEmail,
   signOut as fbSignOut, setPersistence, browserLocalPersistence,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -80,6 +81,28 @@ const provider = {
   async signOut() {
     await fbSignOut(fbAuth);
   },
+  // Firebase keeps one account per email, so someone who signed up with Google
+  // and later taps Apple is refused. Linking is the way through: the second
+  // provider joins the same account, and either signs them in from then on. A
+  // second account would split their bookings in two.
+  async linkProvider(which) {
+    if (!fbAuth.currentUser) throw new Error('Sign in first, then add another way in.');
+    const p = which === 'google' ? new GoogleAuthProvider()
+      : which === 'facebook' ? new FacebookAuthProvider()
+      : which === 'apple' ? new OAuthProvider('apple.com')
+      : null;
+    if (!p) throw new Error('That sign-in method cannot be added.');
+    await linkWithPopup(fbAuth.currentUser, p);
+    provider.user = snapshotUser(fbAuth.currentUser);
+    announceAuthChange();
+  },
+  // Empty where the project has email-enumeration protection on, which is why
+  // the club's own record of a player's providers is the fallback — see
+  // accountLink.js.
+  async existingMethodsFor(email) {
+    try { return await fetchSignInMethodsForEmail(fbAuth, String(email || '').trim()); }
+    catch (e) { return []; }
+  },
   async saveProfile(profile) {
     if (!provider.user) throw new Error('Sign in first.');
     const clean = {
@@ -122,6 +145,15 @@ async function popupOrRedirect(p) {
     throw e;
   }
 }
+
+// The fields the app renders from, plus the ways this account can sign in —
+// that last one is how the app can say which way was used the first time.
+const snapshotUser = (u) => (u ? {
+  uid: u.uid,
+  email: u.email || '',
+  displayName: u.displayName || '',
+  providers: (u.providerData || []).map((d) => d && d.providerId).filter(Boolean),
+} : null);
 
 const computeRole = () => {
   if (!provider.user) return 'anon';
@@ -176,7 +208,7 @@ export function installFirebaseAuth() {
   getRedirectResult(fbAuth).catch((e) => console.error('Redirect sign-in failed', e));
   completeLinkSignIn();
   onAuthStateChanged(fbAuth, (u) => {
-    provider.user = u ? { uid: u.uid, email: u.email || '', displayName: u.displayName || '' } : null;
+    provider.user = snapshotUser(u);
     provider.role = computeRole();
     provider.ready = true;
     watchProfile(u ? u.uid : null);

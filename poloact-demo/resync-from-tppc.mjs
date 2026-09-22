@@ -32,7 +32,7 @@ const SHARED = [
   'FixtureBoard.jsx', 'ChukkaBoard.jsx', 'liveScoreActivity.js',
   'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx', 'EntryContact.jsx',
   'groundPins.js', 'notices.js', 'NoticeBanner.jsx', 'lessons.js', 'LessonsBoard.jsx',
-  'SignInTest.jsx',
+  'SignInTest.jsx', 'accountLink.js',
 ];
 for (const f of SHARED) {
   const src = join(from, f);
