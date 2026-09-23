@@ -84,6 +84,12 @@ const provider = {
       handicap: Number.isFinite(Number(profile.handicap)) ? Number(profile.handicap) : null,
       mobile: String(profile.mobile || '').trim(),
       hpa: String(profile.hpa || '').trim(),
+      // Stamped like the real provider's, and for the same reason: the app
+      // reconciles a profile against the club's player record by comparing
+      // this against the record's updatedAt. A caller copying the record
+      // across passes its stamp, so the two end up equal instead of each
+      // looking newer than the other in turn.
+      updated: Number(profile.updated) || Date.now(),
     };
     persist(); sync();
   },
