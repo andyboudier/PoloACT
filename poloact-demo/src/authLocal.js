@@ -79,7 +79,11 @@ const provider = {
   },
   async saveProfile(profile) {
     if (!state.current) throw new Error('Sign in first.');
+    const old = state.accounts[state.current].profile || {};
     state.accounts[state.current].profile = {
+      // The booking-terms acceptance rides along: it is not part of the
+      // profile a member edits, and losing it would ask them again.
+      ...(old.termsVersion ? { termsVersion: old.termsVersion, termsAcceptedAt: old.termsAcceptedAt } : {}),
       name: String(profile.name || '').trim(),
       handicap: Number.isFinite(Number(profile.handicap)) ? Number(profile.handicap) : null,
       mobile: String(profile.mobile || '').trim(),
@@ -91,6 +95,14 @@ const provider = {
       // looking newer than the other in turn.
       updated: Number(profile.updated) || Date.now(),
     };
+    persist(); sync();
+  },
+  // The member's acceptance of the booking terms (terms.js), on the profile
+  // as the real provider keeps it.
+  async acceptTerms(version) {
+    if (!state.current) throw new Error('Sign in first.');
+    const acc = state.accounts[state.current];
+    acc.profile = { ...(acc.profile || {}), termsVersion: String(version || ''), termsAcceptedAt: Date.now() };
     persist(); sync();
   },
   // The stand-in has no real providers to link, so it just records that this
