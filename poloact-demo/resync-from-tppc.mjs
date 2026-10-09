@@ -32,7 +32,7 @@ const SHARED = [
   'FixtureBoard.jsx', 'ChukkaBoard.jsx', 'liveScoreActivity.js',
   'handicap.js', 'stageMode.js', 'auth.js', 'AuthSheet.jsx', 'EntryContact.jsx',
   'groundPins.js', 'notices.js', 'NoticeBanner.jsx', 'lessons.js', 'LessonsBoard.jsx',
-  'SignInTest.jsx', 'accountLink.js',
+  'SignInTest.jsx', 'accountLink.js', 'TermsSheet.jsx', 'RateCardEditor.jsx', 'terms.js',
 ];
 for (const f of SHARED) {
   const src = join(from, f);
@@ -126,4 +126,26 @@ if (fail.length) {
 }
 writeFileSync(p, s);
 console.log(`rebranded: palette, contact, header, ${clubs} club names, ${files} download prefixes`);
+
+// The booking terms: the demo club's name, colours and made-up details in
+// place of TPPC's. TermsSheet.jsx reads all of it from TERMS_CLUB here.
+const tp = join(to, 'terms.js');
+s = readFileSync(tp, 'utf8');
+sub("  crest: '/tppc-crest.png', crestRound: true,", "  crest: '/icon-192.png', crestRound: true,", 'terms crest');
+sub(`    bg: '#120d0b', card: '#1f1714', line: '#3d2e24', burg: '#6b1f2a',
+    gold: '#b8924a', gold2: '#d4a85a', cream: '#f4ecd8', muted: '#b3a48c',`,
+`    bg: '#0e1a12', card: '#16271c', line: '#2c4334', burg: '#1f3d2b',
+    gold: '#a97f45', gold2: '#c6a468', cream: '#f3ede1', muted: '#b0aa98',`, 'terms colours');
+sub('Tedworth Park, Tidworth, Wiltshire SP9 7AH. Phone 01980 846705 (office) or 07592 404102 (mobile); email info@tedworthparkpolo.com.',
+    'a demonstration club made up for PoloACT — it has no address, and these terms are TPPC’s draft shown as an example. Email hello@poloact.co.uk.', 'terms address');
+sub("'12.1 If something goes wrong, email info@tedworthparkpolo.com.", "'12.1 If something goes wrong, email hello@poloact.co.uk.", 'terms complaints');
+s = s.split('through the TPPC app').join('through the club’s app');
+s = s.split('Tedworth Park Polo Club').join('PoloACT Demo Polo Club');
+if (fail.length) {
+  console.error('\nterms rebrand failed — TPPC has moved and these anchors need updating:');
+  for (const f of fail) console.error('  -', f);
+  process.exit(1);
+}
+writeFileSync(tp, s);
+console.log('rebranded: booking terms');
 console.log('\nleft alone: storage-local.js, trophyStore.js (selector), trophyStore-local.js, demoSeed.js, demoReset.js, demoConfig.js, firebase.js, auth-provider.js, authFirebase.js, authLocal.js, DemoChrome.jsx, main.jsx, index.html, vite.config.js');
